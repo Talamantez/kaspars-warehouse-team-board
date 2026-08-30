@@ -1,0 +1,193 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f4f5f7;
+  --card-bg: #ffffff;
+  --column-bg: #ebecf0;
+  --text: #172b4d;
+  --muted: #5e6c84;
+  --accent: #2563eb;
+  --done: #22a06b;
+  --border: #dfe1e6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1d21;
+    --card-bg: #26282c;
+    --column-bg: #2c2f34;
+    --text: #f0f1f3;
+    --muted: #a3a9b3;
+    --border: #3a3d42;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Prevent the whole page from rubber-banding/zooming oddly on iPad;
+     the board itself owns its own scroll regions below. */
+  overscroll-behavior: none;
+}
+
+#topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#topbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+#authArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+button {
+  font-size: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  /* Make buttons easy to hit with a finger */
+  min-height: 44px;
+}
+
+button:active { opacity: 0.8; }
+
+#userLabel { color: var(--muted); font-size: 14px; }
+
+#statusArea {
+  padding: 24px 16px;
+  color: var(--muted);
+}
+
+/* ---- The board itself ------------------------------------------------- */
+
+#board {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 64px);
+
+  /* This block is the actual fix for the iPad scrolling bug: a plain
+     horizontally-scrolling flex row, with native momentum scrolling
+     and touch-action left to the browser's default (pan-x) instead of
+     being intercepted by drag-handling JS like Planner's own board. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x proximity;
+}
+
+.column {
+  flex: 0 0 82vw;
+  max-width: 340px;
+  background: var(--column-bg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.column-header {
+  padding: 14px 14px 8px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.column-count {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.column-tasks {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 0 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.task-card.done { opacity: 0.55; }
+
+.task-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.task-title-row input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.task-title {
+  font-size: 15px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.task-title.done { text-decoration: line-through; color: var(--muted); }
+
+.task-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-due.overdue { color: #c0392b; font-weight: 600; }
+
+.move-select {
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  min-height: 32px;
+}
+
+.empty-column {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 4px;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Team Board</title>
+<link rel="stylesheet" href="styles.css" />
+<!-- Official Microsoft MSAL browser library (CDN) -->
+<script
+  src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"
+  integrity="sha384-PARf28kmic36Ve+O3DnUerRXFtOQ7ZDqRDGpLcbljly5/N39T2OV3kt3QsWOKeAX"
+  crossorigin="anonymous"></script>
+</head>
+<body>
+  <header id="topbar">
+    <h1>Team Board</h1>
+    <div id="authArea">
+      <button id="signInBtn">Sign in</button>
+      <span id="userLabel" hidden></span>
+      <button id="refreshBtn" hidden>Refresh</button>
+    </div>
+  </header>
+
+  <main id="statusArea">
+    <p id="statusText">Sign in with your work account to load the board.</p>
+  </main>
+
+  <div id="board" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

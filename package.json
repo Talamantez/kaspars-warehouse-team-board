@@ -1,0 +1,10 @@
+{
+  "name": "ipad-planner-board",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Touch-friendly Microsoft Planner board for iPad Safari/Chrome.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

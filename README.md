@@ -27,6 +27,10 @@ Microsoft 365 admin) does this once, in the
    value = the exact URL you'll host this at (e.g.
    `https://yourname.github.io/team-board/`). You can add more than
    one redirect URI later if you host it somewhere else too.
+   *Trailing slash matters:* register the URL exactly as people will
+   open it. If you host at `.../team-board/` but someone opens
+   `.../team-board`, sign-in fails with a redirect-URI mismatch — so
+   either register both forms or always link the trailing-slash URL.
 4. Click **Register**.
 5. Go to **API permissions** → **Add a permission** → **Microsoft
    Graph** → **Delegated permissions**, and add:
@@ -91,7 +95,9 @@ like a native app.
 
 ## 5. Using it
 
-- **Sign in** with the same work account used in Planner.
+- **Sign in** with the same work account used in Planner. This does a
+  full-page redirect to Microsoft and back (not a popup) — popups don't
+  complete when the app runs full-screen from the iPad home screen.
 - Buckets render as horizontally-scrollable columns; each column's
   tasks scroll independently — both use native touch scrolling, so
   this is the part that actually fixes the original iPad problem.
@@ -102,11 +108,31 @@ like a native app.
 - **Refresh** re-pulls the latest from Planner — useful if someone
   else edited the plan elsewhere.
 
+## Development / tests
+
+The pure logic in `app.js` (sorting, filtering, overdue calculation,
+HTML escaping, Graph pagination, card markup) is covered by unit tests
+that need only Node 18+ — no `npm install`, no dependencies:
+
+```bash
+npm test
+```
+
+(or `node --test` directly). The browser-wiring half of `app.js` is
+skipped automatically when the file is loaded under Node, so the same
+file serves both the page and the tests.
+
 ## Notes / limitations
 
 - This is read/write on one plan at a time, chosen by plan ID — it
   doesn't try to be a full Planner replacement, just a board that
   works on iPad.
+- Buckets and tasks are fetched with pagination followed, so large
+  plans load fully rather than stopping at the first page.
+- The app pulls one script from a CDN (`alcdn.msauth.net`, Microsoft's
+  MSAL library, integrity-pinned). On a locked-down network that host
+  must be reachable, or the app shows a "couldn't load the sign-in
+  library" message instead of a blank page.
 - Task ordering within a column is approximated from Planner's
   `orderHint` field; it'll be close to the real Planner order but
   isn't guaranteed to be pixel-identical.

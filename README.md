@@ -14,6 +14,22 @@ is added to Teams, and no new licenses are required.
 
 ---
 
+## Setup at a glance
+
+One person does this once. After that, the end user just opens a link.
+
+| # | Step | Who | Where |
+|---|------|-----|-------|
+| 1 | Register a SPA app in Entra ID, grant `Tasks.ReadWrite` + `User.Read` | M365 admin | [entra.microsoft.com](https://entra.microsoft.com) |
+| 2 | Add the hosted URL (trailing slash) as a **SPA redirect URI** | M365 admin | same app registration |
+| 3 | Paste the client ID + tenant ID into `config.js`, push to `main` | you | this repo |
+| 4 | Enable GitHub Pages: Settings → Pages → branch `main` → `/ (root)` | you | repo settings |
+| 5 | Send the end user the Pages URL; they add it to their home screen | you → end user | the iPad |
+
+Steps 1–2 are the only ones that need admin rights. Full detail below.
+
+---
+
 ## 1. One-time setup: register the app in Entra ID
 
 Someone with permission to create app registrations (usually a
@@ -24,13 +40,13 @@ Microsoft 365 admin) does this once, in the
 2. **Supported account types:** *Accounts in this organizational directory
    only* (single tenant) — no need for multi-tenant.
 3. **Redirect URI:** platform type **Single-page application (SPA)**,
-   value = the exact URL you'll host this at (e.g.
-   `https://yourname.github.io/team-board/`). You can add more than
-   one redirect URI later if you host it somewhere else too.
-   *Trailing slash matters:* register the URL exactly as people will
-   open it. If you host at `.../team-board/` but someone opens
-   `.../team-board`, sign-in fails with a redirect-URI mismatch — so
-   either register both forms or always link the trailing-slash URL.
+   value = the URL you'll host this at, **with a trailing slash**, e.g.
+   `https://yourname.github.io/team-board/`. The app normalises whatever
+   URL it's opened at down to exactly this form, so you only register
+   this one value. (If you're not sure what it'll be, open the hosted
+   page once and read "Team Board redirect URI: …" from the browser
+   console.) You can add more redirect URIs later if you host it
+   elsewhere too.
 4. Click **Register**.
 5. Go to **API permissions** → **Add a permission** → **Microsoft
    Graph** → **Delegated permissions**, and add:
@@ -62,17 +78,20 @@ first time it loads — it'll remember it on that device after that.
 
 ## 3. Fill in `config.js`
 
-Open `config.js` and set:
+Open `config.js` and set the two IDs from step 1:
 
 ```js
 clientId: "the Application (client) ID from step 1",
 tenantId: "the Directory (tenant) ID from step 1",
-planId: "the plan ID from step 2, or leave as \"\" to enter it in-app",
+planId:   "the plan ID from step 2, or leave \"\" to enter it in-app",
 ```
 
-Leave `redirectUri` as-is unless you're hosting at a sub-path — it
-auto-detects the URL it's running at, but it must still exactly match
-what you registered in step 1.
+That's the whole file. `redirectUri` stays blank — the app computes it
+from the page URL (see step 1.3). Commit and push to `main`; GitHub
+Pages redeploys automatically.
+
+Until these IDs are filled in, the app loads but shows "This app isn't
+set up yet" instead of a broken Sign in button.
 
 ## 4. Host it
 
@@ -121,6 +140,14 @@ npm test
 (or `node --test` directly). The browser-wiring half of `app.js` is
 skipped automatically when the file is loaded under Node, so the same
 file serves both the page and the tests.
+
+The home-screen icons (`icon-180.png`, `icon-512.png`) are generated,
+not hand-drawn — regenerate them after changing the accent colour or
+glyph in `tools/make-icon.js`:
+
+```bash
+node tools/make-icon.js
+```
 
 ## Notes / limitations
 

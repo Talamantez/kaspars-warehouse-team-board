@@ -51,6 +51,31 @@
     return `/planner/plans/${encodeURIComponent(planId)}/${sub}`;
   }
 
+  // The redirect URI MSAL hands to Entra must byte-match a registered one.
+  // Collapse whatever URL the page was opened at down to a single canonical
+  // form — origin + path, one trailing slash, no "index.html", no query or
+  // hash — so exactly one value needs registering and the trailing slash
+  // can't bite.
+  function canonicalRedirectUri(href) {
+    const u = new URL(href);
+    u.hash = "";
+    u.search = "";
+    u.pathname = u.pathname.replace(/\/index\.html?$/i, "/");
+    if (!u.pathname.endsWith("/")) u.pathname += "/";
+    return u.origin + u.pathname;
+  }
+
+  // True while config.js still holds its shipped placeholders.
+  function isConfigured(cfg) {
+    return (
+      !!cfg &&
+      !!cfg.clientId &&
+      !!cfg.tenantId &&
+      !/^PASTE-/.test(cfg.clientId) &&
+      !/^PASTE-/.test(cfg.tenantId)
+    );
+  }
+
   function escapeHtml(str) {
     return (str == null ? "" : String(str))
       .replace(/&/g, "&amp;")
@@ -134,6 +159,8 @@
     sortByOrderHint,
     tasksForBucket,
     planPath,
+    canonicalRedirectUri,
+    isConfigured,
     escapeHtml,
     mergeUpdatedTask,
     applyTaskPatch,
@@ -160,6 +187,8 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
       sortByOrderHint,
       tasksForBucket,
       planPath,
+      canonicalRedirectUri,
+      isConfigured,
       escapeHtml,
       mergeUpdatedTask,
       collectPages,
@@ -176,6 +205,18 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
       area.innerHTML = `<p>${escapeHtml(msg)}</p>`;
     }
 
+    // config.js hasn't been filled in yet — say so plainly instead of letting
+    // the Sign in button throw a cryptic MSAL error.
+    if (!isConfigured(CONFIG)) {
+      el("signInBtn").hidden = true;
+      fatal(
+        "This app isn't set up yet. Whoever installed it still needs to add " +
+          "the two IDs from the Entra app registration to config.js (see " +
+          "README.md), then push to main."
+      );
+      return;
+    }
+
     // If a managed network blocks the MSAL CDN, `msal` is undefined and the
     // app would otherwise render a blank page with no clue why.
     if (typeof msal === "undefined") {
@@ -187,11 +228,18 @@ if (typeof window !== "undefined" && typeof document !== "undefined") {
       return;
     }
 
+    const redirectUri =
+      CONFIG.redirectUri || canonicalRedirectUri(window.location.href);
+
+    // Handy when chasing an AADSTS redirect-mismatch: this exact string is
+    // what must be registered as a SPA redirect URI in Entra.
+    console.info("Team Board redirect URI:", redirectUri);
+
     const msalConfig = {
       auth: {
         clientId: CONFIG.clientId,
         authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
-        redirectUri: CONFIG.redirectUri,
+        redirectUri: redirectUri,
       },
       cache: {
         cacheLocation: "localStorage",

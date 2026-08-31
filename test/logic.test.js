@@ -88,6 +88,69 @@ test("planPath: encodes the plan id into the path", () => {
   );
 });
 
+// ---- canonicalRedirectUri --------------------------------------------
+
+test("canonicalRedirectUri: already canonical is unchanged", () => {
+  assert.equal(
+    T.canonicalRedirectUri("https://x.github.io/repo/"),
+    "https://x.github.io/repo/"
+  );
+});
+
+test("canonicalRedirectUri: adds the missing trailing slash", () => {
+  assert.equal(
+    T.canonicalRedirectUri("https://x.github.io/repo"),
+    "https://x.github.io/repo/"
+  );
+});
+
+test("canonicalRedirectUri: strips index.html / index.htm", () => {
+  assert.equal(
+    T.canonicalRedirectUri("https://x.github.io/repo/index.html"),
+    "https://x.github.io/repo/"
+  );
+  assert.equal(
+    T.canonicalRedirectUri("https://x.github.io/repo/index.htm"),
+    "https://x.github.io/repo/"
+  );
+});
+
+test("canonicalRedirectUri: drops query string and hash", () => {
+  assert.equal(
+    T.canonicalRedirectUri("https://x.github.io/repo/?code=abc&state=1#/board"),
+    "https://x.github.io/repo/"
+  );
+});
+
+test("canonicalRedirectUri: keeps port, host at root stays '/'", () => {
+  assert.equal(
+    T.canonicalRedirectUri("http://localhost:8080/index.html"),
+    "http://localhost:8080/"
+  );
+});
+
+// ---- isConfigured ---------------------------------------------------------
+
+test("isConfigured: false for the shipped placeholders / blanks", () => {
+  assert.equal(
+    T.isConfigured({ clientId: "PASTE-CLIENT-ID-HERE", tenantId: "PASTE-TENANT-ID-HERE" }),
+    false
+  );
+  assert.equal(T.isConfigured({ clientId: "", tenantId: "" }), false);
+  assert.equal(T.isConfigured({ clientId: "abc", tenantId: "" }), false);
+  assert.equal(T.isConfigured(null), false);
+});
+
+test("isConfigured: true once both IDs are real", () => {
+  assert.equal(
+    T.isConfigured({
+      clientId: "11111111-1111-1111-1111-111111111111",
+      tenantId: "22222222-2222-2222-2222-222222222222",
+    }),
+    true
+  );
+});
+
 // ---- escapeHtml -----------------------------------------------------------
 
 test("escapeHtml: escapes the five HTML-significant characters", () => {

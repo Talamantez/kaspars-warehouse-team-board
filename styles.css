@@ -39,6 +39,11 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
+  /* Respect the iPad's rounded corners / camera housing when running
+     full-screen from the home screen. */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-top: max(12px, env(safe-area-inset-top));
   border-bottom: 1px solid var(--border);
   background: var(--card-bg);
   position: sticky;
@@ -85,7 +90,12 @@ button:active { opacity: 0.8; }
   flex-direction: row;
   gap: 12px;
   padding: 12px;
-  height: calc(100vh - 64px);
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  /* dvh tracks Safari's collapsing toolbar in-browser; == vh when full-screen.
+     ~88px leaves room for the topbar (incl. its safe-area padding). */
+  height: calc(100vh - 88px);
+  height: calc(100dvh - 88px);
 
   /* This block is the actual fix for the iPad scrolling bug: a plain
      horizontally-scrolling flex row, with native momentum scrolling

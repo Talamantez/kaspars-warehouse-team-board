@@ -5,10 +5,10 @@
 // ---------------------------------------------------------------------------
 const CONFIG = {
   // App registration > Overview > "Application (client) ID"
-  clientId: "PASTE-CLIENT-ID-HERE",
+  clientId: "8390768d-9d09-4a0c-817c-8e7613b24651",
 
   // App registration > Overview > "Directory (tenant) ID"
-  tenantId: "PASTE-TENANT-ID-HERE",
+  tenantId: "f16633ce-7959-49ee-9d1e-ad05b6ab9dec",
 
   // Optional: the Planner plan to show. Paste the "planId=" value from the
   // plan's web URL (README.md has the steps). Leave blank and the app asks
